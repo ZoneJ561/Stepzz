@@ -1,12 +1,13 @@
 # StepDaddyLiveHD 🚀
 
-A self-hosted IPTV proxy built with [Reflex](https://reflex.dev), enabling you to watch over 1,000 📺 TV channels and search for live events or sports matches ⚽🏀. Stream directly in your browser 🌐 or through any media player client 🎶. You can also download the entire playlist (`playlist.m3u8`) and integrate it with platforms like Jellyfin 🍇 or other IPTV media players.
+A self-hosted IPTV proxy built with [Reflex](https://reflex.dev), enabling you to browse over 1,000 📺 TV channels and search for live events or sports matches ⚽🏀. Unlock the IPTV playlist with a secret access code and integrate it with platforms like Jellyfin 🍇 or other IPTV media players.
 
 ---
 
 ## ✨ Features
 
-- **📱 Stream Anywhere**: Watch TV channels on any device via the web or media players.
+- **🔐 Controlled Access**: Protect the playlist download behind a secret access code that becomes part of the playlist URL.
+- **🛠️ Admin Dashboard**: Rotate the playlist secret with a single click from the password-protected admin page.
 - **🔎 Event Search**: Quickly find the right channel for live events or sports.
 - **📄 Playlist Integration**: Download the `playlist.m3u8` and use it with Jellyfin or any IPTV client.
 - **⚙️ Customizable Hosting**: Host the application locally or deploy it via Docker with various configuration options.
@@ -68,6 +69,8 @@ docker run -p 3000:3000 step-daddy-live-hd
 - **API_URL**: Set the domain or IP where the server is reachable.
 - **SOCKS5**: Proxy DLHD traffic through a SOCKS5 server if needed.
 - **PROXY_CONTENT**: Proxy video content itself through your server (optional).
+- **PLAYLIST_SECRET_CODE**: Optional bootstrap secret for the playlist download page. Once the app runs you can rotate it from the admin dashboard.
+- **ADMIN_PASSWORD**: Required password for the admin dashboard before anyone can rotate or view the playlist secret.
 
 Edit the `.env` for docker compose.
 
@@ -85,7 +88,8 @@ docker run -e PROXY_CONTENT=FALSE -e API_URL=https://example.com -e SOCKS5=user:
 
 - **🏠 Home**: Browse and search for TV channels.
 - **📺 Live Events**: Quickly find channels broadcasting live events and sports.
-- **📥 Playlist Download**: Download the `playlist.m3u8` file for integration with media players.
+- **📥 Playlist Download**: Unlock the `playlist.m3u8` file with your access code for integration with media players.
+- **🛡️ Admin Dashboard**: Generate new playlist secrets and copy the direct `https://your-domain/<SECRET>/playlist.m3u8` URL.
 
 ---
 
@@ -93,9 +97,6 @@ docker run -e PROXY_CONTENT=FALSE -e API_URL=https://example.com -e SOCKS5=user:
 
 **Home Page**
 <img alt="Home Page" src="https://files.catbox.moe/qlqqs5.png">
-
-**Watch Page**
-<img alt="Watch Page" src="https://files.catbox.moe/974r9w.png">
 
 **Live Events**
 <img alt="Live Events" src="https://files.catbox.moe/7oawie.png">
