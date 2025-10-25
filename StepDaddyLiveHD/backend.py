@@ -1,8 +1,10 @@
 import os
 import asyncio
+import secrets
 import httpx
 from StepDaddyLiveHD.step_daddy import StepDaddy, Channel
-from fastapi import Response, status, FastAPI
+from StepDaddyLiveHD import secret_manager
+from fastapi import Response, status, FastAPI, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse, FileResponse
 from .utils import urlsafe_base64_decode
 
@@ -69,9 +71,29 @@ def get_channel(channel_id) -> Channel | None:
     return next((channel for channel in step_daddy.channels if channel.id == channel_id), None)
 
 
+def _playlist_response() -> Response:
+    return Response(
+        content=step_daddy.playlist(),
+        media_type="application/vnd.apple.mpegurl",
+        headers={"Content-Disposition": "attachment; filename=playlist.m3u8"},
+    )
+
+
 @fastapi_app.get("/playlist.m3u8")
-def playlist():
-    return Response(content=step_daddy.playlist(), media_type="application/vnd.apple.mpegurl", headers={"Content-Disposition": "attachment; filename=playlist.m3u8"})
+def playlist_open():
+    if secret_manager.load_secret():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return _playlist_response()
+
+
+@fastapi_app.get("/{secret_code}/playlist.m3u8")
+def playlist(secret_code: str):
+    active_secret = secret_manager.load_secret()
+    if active_secret:
+        if secrets.compare_digest(secret_code, active_secret):
+            return _playlist_response()
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return _playlist_response()
 
 
 async def get_schedule():
