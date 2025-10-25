@@ -1,9 +1,9 @@
 import reflex as rx
-import Steppz.pages
+import Stepzz.pages
 from typing import List
-from Steppz import backend
-from Steppz.components import navbar, card
-from Steppz.step_daddy import Channel
+from Stepzz import backend
+from Stepzz.components import navbar, card
+from Stepzz.step_daddy import Channel
 
 
 class State(rx.State):

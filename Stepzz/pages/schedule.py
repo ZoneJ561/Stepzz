@@ -3,8 +3,8 @@ from typing import Dict, List, TypedDict
 from zoneinfo import ZoneInfo
 from datetime import datetime, timedelta
 from dateutil import parser
-from Steppz import backend
-from Steppz.components import navbar
+from Stepzz import backend
+from Stepzz.components import navbar
 
 
 class ChannelItem(TypedDict):

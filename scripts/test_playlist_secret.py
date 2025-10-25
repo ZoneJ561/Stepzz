@@ -13,10 +13,10 @@ if str(REPO_ROOT) not in sys.path:
 
 from fastapi.testclient import TestClient
 
-from Steppz import secret_manager
-from Steppz.backend import fastapi_app, step_daddy
-from Steppz.pages.playlist import validate_access_code
-from Steppz.step_daddy import Channel
+from Stepzz import secret_manager
+from Stepzz.backend import fastapi_app, step_daddy
+from Stepzz.pages.playlist import validate_access_code
+from Stepzz.step_daddy import Channel
 
 
 def main() -> None:

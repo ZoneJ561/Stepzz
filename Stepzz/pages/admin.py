@@ -3,8 +3,8 @@ import secrets
 
 import reflex as rx
 
-from Steppz import secret_manager
-from Steppz.components import navbar
+from Stepzz import secret_manager
+from Stepzz.components import navbar
 from rxconfig import config
 
 

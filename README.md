@@ -1,4 +1,4 @@
-# Steppz 🚀
+# Stepzz 🚀
 
 A self-hosted IPTV proxy built with [Reflex](https://reflex.dev), enabling you to browse over 1,000 📺 TV channels and search for live events or sports matches ⚽🏀. Unlock the IPTV playlist with a secret access code and integrate it with platforms like Jellyfin 🍇 or other IPTV media players.
 
@@ -41,7 +41,7 @@ docker run -p 3000:3000 steppz
    git clone https://github.com/gookie-dev/Stepzz
    cd Stepzz
    ```
-   > ℹ️ The repository root contains the Reflex app under `Steppz/`. All commands below assume you are at the repository root.
+   > ℹ️ The repository root contains the Reflex app under `Stepzz/`. All commands below assume you are at the repository root.
 3. Create and activate a virtual environment:
    ```bash
    python -m venv venv

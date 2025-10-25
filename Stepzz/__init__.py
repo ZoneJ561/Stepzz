@@ -1,4 +1,4 @@
-"""Steppz Reflex application package."""
+"""Stepzz Reflex application package."""
 
 from .app import app
 from . import secret_manager

@@ -1,5 +1,5 @@
 import reflex as rx
-from Steppz.step_daddy import Channel
+from Stepzz.step_daddy import Channel
 
 
 def card(channel: Channel) -> rx.Component:

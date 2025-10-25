@@ -1,6 +1,6 @@
 import reflex as rx
 from rxconfig import config
-from Steppz.components import navbar
+from Stepzz.components import navbar
 
 
 def validate_access_code(candidate: str, secret: str) -> tuple[bool, str]:
@@ -109,9 +109,9 @@ def _playlist_content() -> rx.Component:
                     background_color=rx.color("accent", 7),
                 ),
             ),
-            rx.heading("Welcome to Steppz", size="7", margin_bottom="1rem"),
+            rx.heading("Welcome to Stepzz", size="7", margin_bottom="1rem"),
             rx.text(
-                "Steppz allows you to watch various TV channels via IPTV. "
+                "Stepzz allows you to watch various TV channels via IPTV. "
                 "You can download the playlist file below and use it with your favorite media player.",
             ),
 

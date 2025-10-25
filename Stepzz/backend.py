@@ -2,8 +2,8 @@ import os
 import asyncio
 import secrets
 import httpx
-from Steppz.step_daddy import StepDaddy, Channel
-from Steppz import secret_manager
+from Stepzz.step_daddy import StepDaddy, Channel
+from Stepzz import secret_manager
 from fastapi import Response, status, FastAPI, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse, FileResponse
 from .utils import urlsafe_base64_decode
