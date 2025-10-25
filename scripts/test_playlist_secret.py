@@ -18,6 +18,9 @@ from Stepzz.backend import fastapi_app, step_daddy
 from Stepzz.pages.playlist import validate_access_code
 from Stepzz.step_daddy import Channel
 
+# Legacy import path compatibility check (fails loudly if shim breaks).
+from StepDaddyLiveHD import secret_manager as legacy_secret_manager  # noqa: F401
+
 
 def main() -> None:
     temp_secret = "temporary-secret"
