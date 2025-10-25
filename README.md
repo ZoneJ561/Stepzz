@@ -41,6 +41,7 @@ docker run -p 3000:3000 step-daddy-live-hd
    git clone https://github.com/gookie-dev/StepDaddyLiveHD
    cd StepDaddyLiveHD
    ```
+   > ℹ️ The repository root contains the Reflex app under `StepDaddyLiveHD/`. All commands below assume you are at the repository root.
 3. Create and activate a virtual environment:
    ```bash
    python -m venv venv
@@ -50,14 +51,20 @@ docker run -p 3000:3000 step-daddy-live-hd
    ```bash
    pip install -r requirements.txt
    ```
-5. Initialize Reflex:
+5. Copy the sample environment file and update it with your settings:
+   ```bash
+   cp .env.example .env
+   # edit .env to set ADMIN_PASSWORD and (optionally) PLAYLIST_SECRET_CODE
+   ```
+6. Initialize Reflex (sets up the SQLite database and static assets):
    ```bash
    reflex init
    ```
-6. Run the application in production mode:
+7. Run the application in production mode:
    ```bash
    reflex run --env prod
    ```
+8. Visit `http://localhost:3000` in your browser. Use the admin password you configured to log in at `/admin` and rotate/view the playlist secret.
 
 ---
 
