@@ -105,7 +105,7 @@ def event_card(event: EventItem) -> rx.Component:
         rx.hstack(
             rx.foreach(
                 event["channels"],
-                lambda channel: rx.button(channel["name"], variant="surface", color_scheme="gray", size="1", on_click=rx.redirect(f"/watch/{channel['id']}")),
+                lambda channel: rx.badge(channel["name"], variant="surface", color_scheme="gray", size="2"),
             ),
             wrap="wrap",
             margin_top="0.5rem",
