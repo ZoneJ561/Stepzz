@@ -1,12 +1,14 @@
 import os
 import asyncio
 import secrets
+
 import httpx
-from StepDaddyLiveHD.step_daddy import StepDaddy, Channel
-from StepDaddyLiveHD import secret_manager
-from fastapi import Response, status, FastAPI, HTTPException
+from fastapi import Response, status, FastAPI
 from fastapi.responses import JSONResponse, StreamingResponse, FileResponse
+
+from StepDaddyLiveHD.step_daddy import StepDaddy, Channel
 from .utils import urlsafe_base64_decode
+from rxconfig import config
 
 
 fastapi_app = FastAPI()
@@ -79,20 +81,17 @@ def _playlist_response() -> Response:
     )
 
 
-@fastapi_app.get("/playlist.m3u8")
-def playlist_open():
-    if secret_manager.load_secret():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return _playlist_response()
-
-
 @fastapi_app.get("/{secret_code}/playlist.m3u8")
-def playlist(secret_code: str):
-    active_secret = secret_manager.load_secret()
-    if active_secret:
-        if secrets.compare_digest(secret_code, active_secret):
-            return _playlist_response()
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+@fastapi_app.get("/playlist.m3u8")
+def playlist(secret_code: str | None = None):
+    expected = getattr(config, "playlist_secret", "")
+    if expected:
+        if not secret_code or not secrets.compare_digest(secret_code, expected):
+            return JSONResponse(
+                content={"error": "Invalid playlist secret"},
+                status_code=status.HTTP_403_FORBIDDEN,
+            )
+
     return _playlist_response()
 
 

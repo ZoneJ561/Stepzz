@@ -1,7 +1,4 @@
-from pyexpat.errors import XML_ERROR_INVALID_ARGUMENT
-
 import reflex as rx
-from pygments.styles.dracula import background
 
 from rxconfig import config
 
@@ -51,7 +48,7 @@ def navbar(search=None) -> rx.Component:
                         search,
                         search,
                         rx.text(
-                            "Watch ",
+                            "Browse ",
                             rx.code("live"),
                             " TV channels",
                             align="center",
@@ -62,8 +59,7 @@ def navbar(search=None) -> rx.Component:
                     rx.hstack(
                         navbar_icons_item("Schedule", "calendar-sync", "/schedule"),
                         navbar_icons_item("playlist.m3u8", "file-down", "/playlist"),
-                        navbar_icons_item("Admin", "shield", "/admin"),
-                        navbar_icons_item("Github", "github", "https://github.com/gookie-dev/Stepzz", True),
+                        navbar_icons_item("Github", "github", "https://github.com/gookie-dev/StepDaddyLiveHD", True),
                         spacing="6",
                     ),
                     justify=rx.breakpoints(initial="between"),
@@ -100,8 +96,7 @@ def navbar(search=None) -> rx.Component:
                             rx.menu.content(
                                 navbar_icons_menu_item("Schedule", "calendar-sync", "/schedule"),
                                 navbar_icons_menu_item("playlist.m3u8", "file-down", "/playlist"),
-                                navbar_icons_menu_item("Admin", "shield", "/admin"),
-                                navbar_icons_menu_item("Github", "github", "https://github.com/gookie-dev/Stepzz", True),
+                                navbar_icons_menu_item("Github", "github", "https://github.com/gookie-dev/StepDaddyLiveHD", True),
                             ),
                             justify="end",
                         ),

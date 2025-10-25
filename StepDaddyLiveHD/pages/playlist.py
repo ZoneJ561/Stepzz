@@ -1,265 +1,190 @@
+import secrets
+
 import reflex as rx
-from rxconfig import config
+
 from StepDaddyLiveHD.components import navbar
-
-
-def validate_access_code(candidate: str, secret: str) -> tuple[bool, str]:
-    """Return whether the candidate grants access and an optional error message."""
-
-    if not secret:
-        return True, ""
-
-    if candidate.strip() == secret:
-        return True, ""
-
-    return False, "Invalid access code."
+from rxconfig import config
 
 
 class PlaylistState(rx.State):
-    access_code: str = ""
-    authorized_code: str = ""
-    is_authorized: bool = False
-    error_message: str = ""
+    """State for managing playlist access via a shared secret code."""
 
-    def set_access_code(self, value: str):
-        self.access_code = value
+    code_input: str = ""
+    access_granted: bool = False
+    error: str = ""
+    unlocked_secret: str = ""
 
-    def verify_code(self):
-        secret = getattr(config, "playlist_secret", "")
-        is_authorized, error_message = validate_access_code(self.access_code, secret)
+    def hydrate_access(self):
+        """Automatically unlock the playlist when no secret is configured."""
+        if not getattr(config, "playlist_secret", ""):
+            self.access_granted = True
+            self.error = ""
+            self.unlocked_secret = ""
 
-        self.is_authorized = is_authorized
-        self.error_message = error_message
-        if is_authorized:
-            self.authorized_code = self.access_code.strip()
-        else:
-            self.authorized_code = ""
+    def set_code(self, value: str):
+        self.code_input = value
 
-    def revoke_access(self):
-        self.is_authorized = False
-        self.access_code = ""
-        self.error_message = ""
-        self.authorized_code = ""
+    def verify_code(self, form_data: dict):
+        """Validate the submitted secret code before revealing the playlist."""
+        submitted = (
+            (form_data or {}).get("secret_code", self.code_input).strip()
+            if isinstance(form_data, dict)
+            else self.code_input.strip()
+        )
+        self.code_input = submitted
+
+        expected = getattr(config, "playlist_secret", "")
+        if not expected:
+            self.access_granted = True
+            self.error = ""
+            self.unlocked_secret = ""
+            return
+
+        if submitted and secrets.compare_digest(submitted, expected):
+            self.access_granted = True
+            self.error = ""
+            self.unlocked_secret = submitted
+            return
+
+        self.access_granted = False
+        self.unlocked_secret = ""
+        self.error = "Invalid secret code. Please try again."
+
+    @rx.var
+    def secret_required(self) -> bool:
+        return bool(getattr(config, "playlist_secret", ""))
 
     @rx.var
     def playlist_url(self) -> str:
-        code = self.authorized_code.strip()
-        if code:
-            return f"{config.api_url}/{code}/playlist.m3u8"
-        return f"{config.api_url}/playlist.m3u8"
+        base = config.api_url.rstrip("/")
+        if self.unlocked_secret:
+            return f"{base}/{self.unlocked_secret}/playlist.m3u8"
+        return f"{base}/playlist.m3u8"
 
 
-def _access_form() -> rx.Component:
-    return rx.card(
-        rx.vstack(
-            rx.heading("Enter Access Code", size="6", margin_bottom="0.5rem"),
-            rx.text(
-                "Access to the playlist is restricted. Please enter the secret code provided by the administrator.",
-                text_align="center",
+def _secret_form() -> rx.Component:
+    return rx.vstack(
+        rx.heading("Enter secret code", size="5"),
+        rx.text(
+            "This playlist is restricted. Enter the secret code provided by the administrator to unlock the download link.",
+            color="gray.500",
+        ),
+        rx.form(
+            rx.vstack(
+                rx.input(
+                    placeholder="Secret code",
+                    type="password",
+                    name="secret_code",
+                    value=PlaylistState.code_input,
+                    on_change=PlaylistState.set_code,
+                    size="3",
+                    width="100%",
+                ),
+                rx.button("Unlock playlist", type="submit", size="3", width="100%"),
+                rx.cond(
+                    PlaylistState.error,
+                    rx.text(PlaylistState.error, color="red.500"),
+                ),
+                spacing="3",
+                width="100%",
             ),
-            rx.input(
-                placeholder="Secret code",
-                type="password",
-                value=PlaylistState.access_code,
-                on_change=PlaylistState.set_access_code,
+            on_submit=PlaylistState.verify_code,
+        ),
+        spacing="4",
+        width="100%",
+        align="start",
+    )
+
+
+def _download_panel() -> rx.Component:
+    return rx.vstack(
+        rx.heading("Playlist unlocked", size="5"),
+        rx.text(
+            "Copy the link or download the playlist file to load the StepDaddyLiveHD channels in your preferred IPTV player.",
+            color="gray.500",
+        ),
+        rx.hstack(
+            rx.button(
+                as_child=True,
+                children=rx.link(
+                    rx.hstack(
+                        rx.icon("download"),
+                        rx.text("Download playlist"),
+                        spacing="2",
+                    ),
+                    href=PlaylistState.playlist_url,
+                    target="_blank",
+                ),
                 size="3",
             ),
             rx.button(
-                "Unlock Playlist",
-                on_click=PlaylistState.verify_code,
+                rx.hstack(rx.icon("clipboard"), rx.text("Copy link"), spacing="2"),
+                on_click=[
+                    rx.set_clipboard(PlaylistState.playlist_url),
+                    rx.toast("Playlist URL copied to clipboard!"),
+                ],
                 size="3",
-                width="100%",
-            ),
-            rx.cond(
-                PlaylistState.error_message != "",
-                rx.text(
-                    PlaylistState.error_message,
-                    color="tomato",
-                    font_weight="medium",
-                ),
+                color_scheme="gray",
             ),
             spacing="4",
-            align="center",
-            width="100%",
         ),
-        padding="2rem",
+        rx.box(
+            rx.code(PlaylistState.playlist_url),
+            padding="0.75rem",
+            width="100%",
+            background=rx.color("gray", 3),
+            border_radius="md",
+            overflow="auto",
+        ),
+        rx.cond(
+            config.proxy_content,
+            rx.fragment(),
+            rx.callout(
+                "Proxy content is disabled on this instance. Some clients may not work.",
+                icon="info",
+                color_scheme="orange",
+            ),
+        ),
+        spacing="4",
         width="100%",
-        max_width="500px",
-        border_radius="xl",
-        box_shadow="lg",
+        align="start",
     )
 
 
-def _playlist_content() -> rx.Component:
-    return rx.card(
-        rx.vstack(
-            rx.cond(
-                config.proxy_content,
-                rx.fragment(),
-                rx.card(
-                    rx.hstack(
-                        rx.icon(
-                            "info",
-                        ),
-                        rx.text(
-                            "Proxy content is disabled on this instance. Some clients may not work.",
-                        ),
-                    ),
-                    width="100%",
-                    background_color=rx.color("accent", 7),
-                ),
-            ),
-            rx.heading("Welcome to Stepzz", size="7", margin_bottom="1rem"),
-            rx.text(
-                "Stepzz allows you to watch various TV channels via IPTV. "
-                "You can download the playlist file below and use it with your favorite media player.",
-            ),
-
-            rx.divider(margin_y="1.5rem"),
-
-            rx.heading("How to Use", size="5", margin_bottom="0.5rem"),
-            rx.text(
-                "1. Copy the link below or download the playlist file",
-                margin_bottom="0.5rem",
-                font_weight="medium",
-            ),
-            rx.text(
-                "2. Open it with your preferred media player or IPTV app",
-                margin_bottom="1.5rem",
-                font_weight="medium",
-            ),
-
-            rx.hstack(
-                rx.button(
-                    "Download Playlist",
-                    rx.icon("download", margin_right="0.5rem"),
-                    on_click=rx.redirect(PlaylistState.playlist_url, is_external=True),
-                    size="3",
-                ),
-                rx.button(
-                    "Copy Link",
-                    rx.icon("clipboard", margin_right="0.5rem"),
-                    on_click=[
-                        rx.set_clipboard(PlaylistState.playlist_url),
-                        rx.toast("Playlist URL copied to clipboard!"),
-                    ],
-                    size="3",
-                    color_scheme="gray",
-                ),
-                width="100%",
-                justify="center",
-                spacing="4",
-                margin_bottom="1rem",
-            ),
-
-            rx.box(
-                rx.text(
-                    PlaylistState.playlist_url,
-                    font_family="mono",
-                    font_size="sm",
-                ),
-                padding="0.75rem",
-                background="gray.100",
-                border_radius="md",
-                width="100%",
-                text_align="center",
-            ),
-
-            rx.divider(margin_y="1rem"),
-
-            rx.heading("Compatible Players", size="5", margin_bottom="1rem"),
-            rx.text(
-                "You can use the m3u8 playlist with most media players and IPTV applications:",
-                margin_bottom="1rem",
-            ),
-            rx.card(
-                rx.vstack(
-                    rx.heading("VLC Media Player", size="6"),
-                    rx.text("Popular free and open-source media player"),
-                    rx.spacer(),
-                    rx.link(
-                        "Download",
-                        href="https://www.videolan.org/vlc/",
-                        target="_blank",
-                        color="blue.500",
-                    ),
-                    height="100%",
-                    justify="between",
-                    align="center",
-                ),
-                padding="1rem",
-                width="100%",
-            ),
-
-            rx.card(
-                rx.vstack(
-                    rx.heading("IPTVnator", size="6"),
-                    rx.text("Cross-platform IPTV player application"),
-                    rx.spacer(),
-                    rx.link(
-                        "Download",
-                        href="https://github.com/4gray/iptvnator",
-                        target="_blank",
-                        color="blue.500",
-                    ),
-                    height="100%",
-                    justify="between",
-                    align="center",
-                ),
-                padding="1rem",
-                width="100%",
-            ),
-
-            rx.card(
-                rx.vstack(
-                    rx.heading("Jellyfin", size="6"),
-                    rx.text("Free media system to manage your media"),
-                    rx.spacer(),
-                    rx.link(
-                        "Download",
-                        href="https://jellyfin.org/",
-                        target="_blank",
-                        color="blue.500",
-                    ),
-                    height="100%",
-                    justify="between",
-                    align="center",
-                ),
-                padding="1rem",
-                width="100%",
-            ),
-
-            rx.divider(margin_y="1rem"),
-
-            rx.text(
-                "Need help? Most media players allow you to open network streams or IPTV playlists. "
-                "Simply paste the m3u8 URL above or import the downloaded playlist file.",
-                font_style="italic",
-                color="gray.600",
-                text_align="center",
-            ),
-            spacing="4",
-            width="100%",
-        ),
-        padding="2rem",
-        width="100%",
-        max_width="800px",
-        border_radius="xl",
-        box_shadow="lg",
-    )
-
-
-@rx.page("/playlist")
+@rx.page("/playlist", on_load=PlaylistState.hydrate_access)
 def playlist() -> rx.Component:
     return rx.box(
         navbar(),
         rx.container(
             rx.center(
-                rx.cond(
-                    PlaylistState.is_authorized,
-                    _playlist_content(),
-                    _access_form(),
+                rx.card(
+                    rx.vstack(
+                        rx.heading("Secure playlist access", size="7"),
+                        rx.text(
+                            "Protect the m3u8 feed with a secret code so only trusted viewers can download the playlist.",
+                            color="gray.500",
+                        ),
+                        rx.cond(
+                            PlaylistState.secret_required,
+                            rx.badge("Secret required", color_scheme="red", variant="surface"),
+                            rx.badge("Open access", color_scheme="green", variant="surface"),
+                        ),
+                        rx.cond(
+                            PlaylistState.access_granted,
+                            _download_panel(),
+                            _secret_form(),
+                        ),
+                        spacing="5",
+                        width="100%",
+                        align="start",
+                    ),
+                    padding="2rem",
+                    width="100%",
+                    max_width="720px",
+                    border_radius="xl",
+                    box_shadow="lg",
                 ),
+                padding_y="3rem",
             ),
             padding_top="7rem",
         ),
