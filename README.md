@@ -41,8 +41,8 @@ docker run -p 3000:3000 steppz
    git clone https://github.com/gookie-dev/Stepzz
    cd Stepzz
    ```
-   > ℹ️ The repository root contains the Reflex app under `Stepzz/`. All commands below assume you are at the repository root.
-   > Legacy documentation or scripts may still refer to the old `StepDaddyLiveHD` package name—compatibility shims keep those imports working.
+   > ℹ️ The repository root contains the Reflex app under `StepDaddyLiveHD/`. All commands below assume you are at the repository root.
+   > The modern `Stepzz` import path is provided as a thin alias over the canonical `StepDaddyLiveHD` package so existing code keeps working regardless of which name you prefer.
 3. Create and activate a virtual environment:
    ```bash
    python -m venv venv

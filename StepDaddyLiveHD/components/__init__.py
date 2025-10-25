@@ -1,8 +1,5 @@
-"""Compatibility shims for legacy StepDaddyLiveHD component imports."""
-from __future__ import annotations
+from .navbar import navbar
+from .card import card
+from .media_player import MediaPlayer
 
-from .._compat import reexport
-
-__all__ = reexport("Stepzz.components", globals())
-
-del reexport
+__all__ = ["navbar", "card", "MediaPlayer"]

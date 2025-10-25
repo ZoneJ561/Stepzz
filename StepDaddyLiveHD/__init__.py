@@ -1,8 +1,6 @@
-"""Compatibility package that mirrors the Stepzz application namespace."""
-from __future__ import annotations
+"""Legacy StepDaddyLiveHD Reflex application package."""
 
-from ._compat import reexport
+from .app import app
+from . import secret_manager
 
-__all__ = reexport("Stepzz", globals())
-
-del reexport
+__all__ = ["app", "secret_manager"]

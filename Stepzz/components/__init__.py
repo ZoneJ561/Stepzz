@@ -1,5 +1,3 @@
-from .navbar import navbar
-from .card import card
-from .media_player import MediaPlayer
+"""Stepzz component package delegating to StepDaddyLiveHD components."""
 
-__all__ = ["navbar", "card", "MediaPlayer"]
+from StepDaddyLiveHD.components import *  # noqa: F401,F403

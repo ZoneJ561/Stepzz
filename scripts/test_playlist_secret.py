@@ -5,6 +5,7 @@ import importlib
 import os
 import pathlib
 import sys
+import types
 
 # Ensure the repository root is importable when running directly from the scripts directory.
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -13,17 +14,19 @@ if str(REPO_ROOT) not in sys.path:
 
 from fastapi.testclient import TestClient
 
-from Stepzz import secret_manager
-from Stepzz.backend import fastapi_app, step_daddy
-from Stepzz.pages.playlist import validate_access_code
-from Stepzz.step_daddy import Channel
+from StepDaddyLiveHD import secret_manager
+from StepDaddyLiveHD.backend import fastapi_app, step_daddy
+from StepDaddyLiveHD.pages.playlist import validate_access_code
+from StepDaddyLiveHD.step_daddy import Channel
 
 
-def assert_legacy_exports_match(module_path: str) -> None:
-    """Ensure the legacy module exposes the same public API as the modern module."""
+def assert_alias_exports_match(module_path: str) -> None:
+    """Ensure the Stepzz alias exposes everything from the canonical module."""
 
-    modern = importlib.import_module(f"Stepzz{'.' + module_path if module_path else ''}")
-    legacy = importlib.import_module(f"StepDaddyLiveHD{'.' + module_path if module_path else ''}")
+    canonical = importlib.import_module(
+        f"StepDaddyLiveHD{'.' + module_path if module_path else ''}"
+    )
+    alias = importlib.import_module(f"Stepzz{'.' + module_path if module_path else ''}")
 
     def public_exports(module: object) -> set[str]:
         names = getattr(module, "__all__", None)
@@ -31,24 +34,37 @@ def assert_legacy_exports_match(module_path: str) -> None:
             names = [name for name in dir(module) if not name.startswith("_")]
         return set(names)
 
-    modern_exports = public_exports(modern)
-    legacy_exports = public_exports(legacy)
+    canonical_exports = public_exports(canonical)
+    alias_exports = public_exports(alias)
 
-    missing = modern_exports - legacy_exports
-    assert not missing, f"Legacy module StepDaddyLiveHD.{module_path or '__init__'} missing exports: {sorted(missing)}"
+    missing = canonical_exports - alias_exports
+    assert not missing, (
+        "Stepzz alias missing attributes from StepDaddyLiveHD."
+        f" Module: {module_path or '__init__'} -> {sorted(missing)}"
+    )
+
+    for name in canonical_exports:
+        alias_attr = getattr(alias, name)
+        canonical_attr = getattr(canonical, name)
+        if isinstance(canonical_attr, types.ModuleType):
+            continue
+        assert alias_attr is canonical_attr, (
+            f"Alias attribute Stepzz.{module_path or '__init__'}:{name} "
+            "does not reference the canonical object."
+        )
 
 
-# Legacy import path compatibility check (fails loudly if shim breaks).
-assert_legacy_exports_match("")
-assert_legacy_exports_match("backend")
-assert_legacy_exports_match("components")
-assert_legacy_exports_match("components.card")
-assert_legacy_exports_match("components.navbar")
-assert_legacy_exports_match("pages")
-assert_legacy_exports_match("pages.playlist")
-assert_legacy_exports_match("pages.schedule")
-assert_legacy_exports_match("secret_manager")
-assert_legacy_exports_match("step_daddy")
+# Alias integrity checks (fails loudly if modules diverge).
+assert_alias_exports_match("")
+assert_alias_exports_match("backend")
+assert_alias_exports_match("components")
+assert_alias_exports_match("components.card")
+assert_alias_exports_match("components.navbar")
+assert_alias_exports_match("pages")
+assert_alias_exports_match("pages.playlist")
+assert_alias_exports_match("pages.schedule")
+assert_alias_exports_match("secret_manager")
+assert_alias_exports_match("step_daddy")
 
 
 def main() -> None:

@@ -1,8 +1,6 @@
-"""Compatibility shims for the legacy StepDaddyLiveHD pages."""
-from __future__ import annotations
+from .admin import admin
+from .playlist import playlist
+from .schedule import schedule
 
-from .._compat import reexport
 
-__all__ = reexport("Stepzz.pages", globals())
-
-del reexport
+__all__ = ["admin", "playlist", "schedule"]

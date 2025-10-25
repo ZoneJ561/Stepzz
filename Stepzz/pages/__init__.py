@@ -1,6 +1,3 @@
-from .admin import admin
-from .playlist import playlist
-from .schedule import schedule
+"""Stepzz pages package delegating to StepDaddyLiveHD pages."""
 
-
-__all__ = ["admin", "playlist", "schedule"]
+from StepDaddyLiveHD.pages import *  # noqa: F401,F403
