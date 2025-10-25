@@ -1,5 +1,18 @@
-import reflex as rx
 import os
+import sys
+from pathlib import Path
+
+import reflex as rx
+
+
+# Ensure the project root is on the Python path so ``StepDaddyLiveHD`` can be
+# imported even when Reflex executes from a different working directory (for
+# example inside a container where the app is copied to ``/app``).
+project_root = Path(__file__).resolve().parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from StepDaddyLiveHD import secret_manager
 
 from StepDaddyLiveHD import secret_manager
 
