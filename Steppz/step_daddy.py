@@ -25,7 +25,7 @@ class StepDaddy:
             self._session = AsyncSession()
         self._base_url = "https://dlhd.dad"
         self.channels = []
-        with open("StepDaddyLiveHD/meta.json", "r") as f:
+        with open("Steppz/meta.json", "r") as f:
             self._meta = json.load(f)
 
     def _headers(self, referer: str = None, origin: str = None):

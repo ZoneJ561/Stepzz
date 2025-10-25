@@ -3,8 +3,8 @@ from typing import Dict, List, TypedDict
 from zoneinfo import ZoneInfo
 from datetime import datetime, timedelta
 from dateutil import parser
-from StepDaddyLiveHD import backend
-from StepDaddyLiveHD.components import navbar
+from Steppz import backend
+from Steppz.components import navbar
 
 
 class ChannelItem(TypedDict):
@@ -105,7 +105,7 @@ def event_card(event: EventItem) -> rx.Component:
         rx.hstack(
             rx.foreach(
                 event["channels"],
-                lambda channel: rx.button(channel["name"], variant="surface", color_scheme="gray", size="1", on_click=rx.redirect(f"/watch/{channel['id']}")),
+                lambda channel: rx.badge(channel["name"], variant="surface", color_scheme="gray", size="2"),
             ),
             wrap="wrap",
             margin_top="0.5rem",
