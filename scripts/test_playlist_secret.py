@@ -18,8 +18,37 @@ from Stepzz.backend import fastapi_app, step_daddy
 from Stepzz.pages.playlist import validate_access_code
 from Stepzz.step_daddy import Channel
 
+
+def assert_legacy_exports_match(module_path: str) -> None:
+    """Ensure the legacy module exposes the same public API as the modern module."""
+
+    modern = importlib.import_module(f"Stepzz{'.' + module_path if module_path else ''}")
+    legacy = importlib.import_module(f"StepDaddyLiveHD{'.' + module_path if module_path else ''}")
+
+    def public_exports(module: object) -> set[str]:
+        names = getattr(module, "__all__", None)
+        if names is None:
+            names = [name for name in dir(module) if not name.startswith("_")]
+        return set(names)
+
+    modern_exports = public_exports(modern)
+    legacy_exports = public_exports(legacy)
+
+    missing = modern_exports - legacy_exports
+    assert not missing, f"Legacy module StepDaddyLiveHD.{module_path or '__init__'} missing exports: {sorted(missing)}"
+
+
 # Legacy import path compatibility check (fails loudly if shim breaks).
-from StepDaddyLiveHD import secret_manager as legacy_secret_manager  # noqa: F401
+assert_legacy_exports_match("")
+assert_legacy_exports_match("backend")
+assert_legacy_exports_match("components")
+assert_legacy_exports_match("components.card")
+assert_legacy_exports_match("components.navbar")
+assert_legacy_exports_match("pages")
+assert_legacy_exports_match("pages.playlist")
+assert_legacy_exports_match("pages.schedule")
+assert_legacy_exports_match("secret_manager")
+assert_legacy_exports_match("step_daddy")
 
 
 def main() -> None:

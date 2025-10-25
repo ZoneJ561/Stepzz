@@ -1,5 +1,8 @@
 """Compatibility shims for the legacy StepDaddyLiveHD pages."""
+from __future__ import annotations
 
-from Stepzz.pages import *  # noqa: F401,F403
+from .._compat import reexport
 
-__all__ = [name for name in globals() if not name.startswith("_")]
+__all__ = reexport("Stepzz.pages", globals())
+
+del reexport

@@ -1,5 +1,8 @@
 """Compatibility shims for legacy StepDaddyLiveHD component imports."""
+from __future__ import annotations
 
-from Stepzz.components import *  # noqa: F401,F403
+from .._compat import reexport
 
-__all__ = [name for name in globals() if not name.startswith("_")]
+__all__ = reexport("Stepzz.components", globals())
+
+del reexport

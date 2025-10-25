@@ -1,5 +1,8 @@
-"""Compatibility package that re-exports the Stepzz application namespace."""
+"""Compatibility package that mirrors the Stepzz application namespace."""
+from __future__ import annotations
 
-from Stepzz import *  # noqa: F401,F403
+from ._compat import reexport
 
-__all__ = [name for name in globals() if not name.startswith("_")]
+__all__ = reexport("Stepzz", globals())
+
+del reexport
